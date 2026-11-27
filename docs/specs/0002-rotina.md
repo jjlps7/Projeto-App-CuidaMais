@@ -1,0 +1,8 @@
+# Agenda e respostas
+
+O cuidador programa uma tarefa única, diária ou em dias da semana. Informa paciente, título, categoria, início e horário, podendo anexar instrução e voz familiar em MP3 (até 2 MiB). O sistema prepara sete dias de agenda e continua gerando ocorrências enquanto a programação estiver ativa. Cada ocorrência conserva a referência à versão com o título, horário e áudio usados. Alterações e desativações registram autor, data e versão. Ocorrências já disparadas continuam disponíveis. Enquanto a aplicação está em execução, o servidor verifica os horários a cada dois segundos. A página aberta consulta as mudanças a cada três segundos, preservando os formulários em edição.
+
+O paciente pode confirmar a partir do primeiro aviso ou adiar uma vez, antes de completar 15 minutos. O novo horário fica 15 minutos após o pedido. É possível confirmar durante a espera e cancelar o reaviso. Ao chegar o horário reagendado, a agenda volta a mostrar PENDENTE e só permite confirmar.
+
+Uma ocorrência sem confirmação gera um alerta 15 minutos após o horário vigente. O cuidador vê o alerta no painel. A confirmação posterior encerra o alerta ativo e mantém seu horário no histórico. O aviso no painel mostra ícone, instrução, reprodução manual de voz e botões de resposta. A ocorrência começa sem confirmação de entrega; o painel do paciente informa a exibição ou o bloqueio detectado de notificações do navegador. O texto permanece disponível se o áudio falhar. Durante uma interrupção do servidor, os prazos vencidos são reconciliados na retomada.
+Com o JAR compilado e JDK 17, execute `java -cp target/cuidarmais-1.0.0.jar tests/TestePrazos.java` na raiz para verificar os prazos em um banco em memória.

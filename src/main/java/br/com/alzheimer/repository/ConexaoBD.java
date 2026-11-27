@@ -1,59 +1,38 @@
 package br.com.alzheimer.repository;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.sql.*;
+import org.h2.tools.RunScript;
 
 public class ConexaoBD {
-    private static final String URL = "jdbc:sqlite:assistente_alzheimer.db";
-
+    private static final String URL = "jdbc:h2:file:" + System.getProperty("cuida.banco", "./dados/rotina");
     public static Connection conectar() throws SQLException {
-        return DriverManager.getConnection(URL);
+        return DriverManager.getConnection(URL, "rotina_app", "rotina-demo");
     }
-
-    public static void inicializarBanco() {
-        String sqlUsuario = "CREATE TABLE IF NOT EXISTS usuario ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "nome TEXT NOT NULL, "
-                + "email TEXT NOT NULL UNIQUE, "
-                + "senha_hash TEXT NOT NULL, "
-                + "perfil TEXT NOT NULL, "
-                + "cuidador_id INTEGER, "
-                + "extra TEXT);";
-
-        String sqlLembrete = "CREATE TABLE IF NOT EXISTS lembrete ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "titulo TEXT NOT NULL, "
-                + "horario_programado TEXT NOT NULL, "
-                + "caminho_audio_voz TEXT, "
-                + "status TEXT NOT NULL, "
-                + "cuidador_id INTEGER NOT NULL, "
-                + "paciente_id INTEGER NOT NULL);";
-
-        String sqlLocalizacao = "CREATE TABLE IF NOT EXISTS registro_localizacao ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "paciente_id INTEGER NOT NULL, "
-                + "latitude REAL NOT NULL, "
-                + "longitude REAL NOT NULL, "
-                + "fora_zona_segura INTEGER NOT NULL, "
-                + "registrado_em TEXT NOT NULL);";
-
-        String sqlComportamento = "CREATE TABLE IF NOT EXISTS registro_comportamental ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "paciente_id INTEGER NOT NULL, "
-                + "categoria TEXT NOT NULL, "
-                + "intensidade INTEGER NOT NULL, "
-                + "observacao TEXT, "
-                + "registrado_em TEXT NOT NULL);";
-
-        try (Connection conn = conectar(); Statement stmt = conn.createStatement()) {
-            stmt.execute(sqlUsuario);
-            stmt.execute(sqlLembrete);
-            stmt.execute(sqlLocalizacao);
-            stmt.execute(sqlComportamento);
-        } catch (SQLException e) {
-            System.err.println("Erro ao inicializar banco SQLite: " + e.getMessage());
+    public static void inicializarBanco() throws Exception {
+        try (var conn = DriverManager.getConnection(URL, "sa", "");
+             var script = new InputStreamReader(ConexaoBD.class.getResourceAsStream("/schema.sql"), StandardCharsets.UTF_8)) {
+            RunScript.execute(conn, script);
+            // A primeira versão do H2 gerava nomes automáticos para os dois CHECK de perfil.
+            var antigos = new java.util.ArrayList<String>();
+            try (var st = conn.createStatement();
+                 var rs = st.executeQuery("""
+                     SELECT t.constraint_name FROM information_schema.table_constraints t
+                     JOIN information_schema.check_constraints k
+                       ON k.constraint_schema=t.constraint_schema AND k.constraint_name=t.constraint_name
+                     WHERE t.table_schema='PUBLIC' AND t.table_name='USUARIO'
+                       AND t.constraint_name LIKE 'CONSTRAINT_%'
+                       AND k.check_clause LIKE '%"PERFIL"%'
+                       AND k.check_clause LIKE '%CUIDADOR%' AND k.check_clause LIKE '%PACIENTE%'
+                       AND k.check_clause NOT LIKE '%FAMILIAR%'
+                     """)) {
+                while (rs.next()) antigos.add(rs.getString(1));
+            }
+            try (var st = conn.createStatement()) {
+                for (String nome : antigos)
+                    st.execute("ALTER TABLE usuario DROP CONSTRAINT " + st.enquoteIdentifier(nome,true));
+            }
         }
     }
 }

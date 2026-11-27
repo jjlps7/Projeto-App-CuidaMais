@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "110-java-maven-best-practices": {
+      "source": "jabrena/plinth",
+      "commit": "ceb6bb0b8c616a8d69b1e6f878275b69562b0cf1",
+      "sourceType": "github",
+      "skillPath": "skills/110-java-maven-best-practices/SKILL.md",
+      "computedHash": "9870b504dac3aa42e9d4854ec8943c1a08dd1d3ea783f4ec4df415d9d63347ad"
+    },
+    "121-java-object-oriented-design": {
+      "source": "jabrena/plinth",
+      "commit": "ceb6bb0b8c616a8d69b1e6f878275b69562b0cf1",
+      "sourceType": "github",
+      "skillPath": "skills/121-java-object-oriented-design/SKILL.md",
+      "computedHash": "04d0b1d76a7fbdc9c485f7b27890a8b3ea638fd6c1f2cb43a95fe7be6589eecf"
+    }
+  }
+}
