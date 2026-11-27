@@ -1,0 +1,6 @@
+target/
+*.iml
+.idea/
+*.db
+*.log
+.DS_Store
