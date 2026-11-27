@@ -2,7 +2,7 @@
 
 Aplicação web acadêmica de Arthur Felipe Bezerra de Almeida e Jorge José Luiz Pacheco da Silva. O cuidador organiza a rotina e registra ocorrências. O paciente entra com sua própria conta para consultar a agenda, confirmar tarefas e adiar uma vez. O familiar autorizado acompanha a agenda e o histórico de respostas.
 
-## Executar no computador da apresentação
+## Executar no computador
 
 Requer JDK 17 ou superior e Maven 3.9. Na raiz do projeto:
 
